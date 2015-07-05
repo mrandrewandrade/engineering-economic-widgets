@@ -1,0 +1,113 @@
+---
+title: Engineering Economics Tools Built With [R] and RShiny
+author: "Created By: Andrew Andrade (andrew@andrewandrade.ca)"
+date: "Last Updated: March 29, 2015"
+output:
+  html_document:
+    highlight: tango
+    number_sections: yes
+    theme: flatly
+    toc: yes
+runtime: shiny
+---
+
+#Introduction
+
+This document serves as a compilation of code in [R] and applications made in RShiny used for making economic and/or financial decisions in engineering/businss projects.  This project is still a work in progress and is going to see many changes in the near future.
+
+# Calculating Interest and Annuity Factors
+
+Interest and annuity factors can be calculated in a very similar fashion to excel using the [FinCal package](http://cran.r-project.org/web/packages/FinCal/FinCal.pdf).
+
+
+## Installing Dependencies
+
+As usual, the package can be installed using the following in the command line:
+
+> install.packages("FinCal")
+
+Begin by loading the library:
+```{r}
+library(FinCal)
+```
+
+Next we have access many financial and economic functions allowing you to do time value of money calculations, time series analysis, computational
+finance and many more applications.
+
+##Calculatations for Discrete Compounding, Discrete Cash Flows
+
+To do basic discrete interest and annuity factor calculations, future value (`fv`), present value (`pv`), period payement (`pmt`) functions are used.  These functions are simiar to their excel counterparts, but the order of the arguements vary, so please ensure you read the [documentation](http://cran.r-project.org/web/packages/FinCal/FinCal.pdf).
+
+
+###Single Cash Flows, Uniform Payment Series
+
+Simplying using [R] code, future and present worth factors can be estimated for single cash flows.  Similarly, future, annual and present worth factors can be estimated for uniform series period payements.  Gradient Payement equivilents can then be easily calculated using the previously calculated values.
+
+
+```{r}
+
+#i% = arbitrary 10%
+interest_rate <- 10
+#N = arbitrary 12 periods
+number_periods <- 12
+
+#[F/P,i%,N]
+FP <- fv(interest_rate/100,number_periods,-1,0,0)
+
+#[P/F,i%,N]
+PF <- pv(interest_rate/100,number_periods,-1,0,0)
+
+#[F/A, i%, N]
+FA <- fv(interest_rate/100,number_periods,0,-1,0)
+
+#[A/F, i%, N],
+AF <- pmt(interest_rate/100,number_periods,0,-1,0)
+
+#[P/A, i%, N],
+PA <- pv(interest_rate/100,number_periods,0,-1,0)
+
+#[A/P, i%, N],
+AP <- pmt(interest_rate/100,number_periods,-1,0,0)
+
+#[F/G, i%, N]
+FG <- 100*(FA-number_periods)/interest_rate
+
+#[P/G, i%, N    
+PG <- FG*PF
+
+#[A/G, i%, N]
+AG <- AF*FG
+
+```
+
+
+## Application
+
+It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
+
+```{r, echo=FALSE}
+inputPanel(
+  selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  
+  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.2, max = 2, value = 1, step = 0.2)
+)
+
+renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  
+  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
+  lines(dens, col = "blue")
+})
+```
+
+Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
+
+You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+
+In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
+
+
+
