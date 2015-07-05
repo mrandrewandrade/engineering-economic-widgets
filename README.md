@@ -5,5 +5,5 @@ Code in [R] and Widgets made in RShiny used for making economic and/or financial
 
 1) Interest and Annuity Factors Calculator for Discrete Compounding, Discrete Cash Flows
 
-![Image of Discrete Interest Calculator](https://github.com/mrandrewandrade/engineering_economics_widgets/raw/master/screenshots/discrete_compounding_interest_and_annuity_factors.png)
+![Image of Discrete Interest Calculator](screenshots/discrete_compounding_interest_and_annuity_factors.png)
 
